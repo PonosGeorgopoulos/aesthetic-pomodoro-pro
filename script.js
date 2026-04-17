@@ -1780,27 +1780,13 @@
         const isMobile = window.innerWidth <= 1100;
 
         if (isMobile) {
-            // --- MOBILE: single-panel mode ---
-            const allCols = document.querySelectorAll('.col-app');
-            const allDots = document.querySelectorAll('.dock-dot');
-            
-            // Deactivate all panels and dots
-            allCols.forEach(col => col.classList.remove('mobile-active', 'minimized'));
-            allDots.forEach(dot => dot.classList.remove('active'));
-            
-            // Activate the selected one
-            appEl.classList.add('mobile-active');
-            appEl.classList.remove('minimized');
-            if (dotEl) dotEl.classList.add('active');
-            
-            // Bounce animation
+            // --- MOBILE: scroll to the panel ---
             if (el) {
                 el.classList.add('bouncing');
                 setTimeout(() => el.classList.remove('bouncing'), 400);
             }
             
-            // Scroll to top to see it
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            appEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
 
@@ -2174,12 +2160,6 @@
 
         // Minor delay to ensure CSS masks/gradients apply after layout stability
         setTimeout(() => applyBackground(), 50);
-
-        // --- 1.7 MOBILE: Set default active panel ---
-        if (window.innerWidth <= 1100) {
-            const timerCol = document.getElementById('col-timer');
-            if (timerCol) timerCol.classList.add('mobile-active');
-        }
 
         // --- 2. CORE TIMER CONTROLS ---
         UI.startBtn.addEventListener('click', startTimer);

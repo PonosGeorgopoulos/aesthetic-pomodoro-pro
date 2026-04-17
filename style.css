@@ -295,37 +295,35 @@ body {
     }
 
     .app-grid {
-        display: flex;
-        flex-direction: column;
+        display: flex !important;
+        flex-direction: column !important;
         align-items: center;
-        padding-top: 20px;
-        padding-bottom: 80px;
-        margin: auto;
+        gap: 20px;
+        padding: 20px 10px 90px 10px;
+        margin: 0 auto;
         width: 100%;
+        height: auto !important;
     }
 
     .col-left,
     .col-center,
     .col-right {
+        display: flex !important;
         width: 95% !important;
-        max-width: 500px;
+        max-width: 550px;
         margin: 0 auto;
         height: auto !important;
         min-height: auto !important;
         max-height: none !important;
-        display: none !important;
+        order: 0;
     }
 
-    /* Show only the active mobile panel */
-    .col-app.mobile-active {
-        display: flex !important;
-    }
+    /* Order: Timer first, Calendar second, Tracker third */
+    .col-center { order: 1; }
+    .col-left   { order: 2; }
+    .col-right  { order: 3; }
 
-    .col-center {
-        max-width: 600px;
-    }
-
-    /* Make all glass panels expand to fit their content on mobile */
+    /* Make all glass panels expand to fit their content */
     .glass-panel {
         height: auto !important;
         max-height: none !important;
@@ -344,7 +342,7 @@ body {
     }
 
     .pomodoro-container {
-        min-height: 500px;
+        min-height: 480px;
     }
 }
 
