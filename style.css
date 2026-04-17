@@ -343,6 +343,7 @@ body {
 
     .pomodoro-container {
         min-height: 480px;
+        overflow: hidden !important;
     }
 }
 
