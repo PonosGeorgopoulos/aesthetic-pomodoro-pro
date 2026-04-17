@@ -293,23 +293,34 @@ body {
         overflow-y: auto;
     }
 
+    .app-grid {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 20px;
+        padding-bottom: 80px;
+        margin: auto;
+        width: 100%;
+    }
+
     .col-left,
+    .col-center,
     .col-right {
+        width: 100% !important;
+        max-width: 500px;
+        margin: 0 auto;
+        height: auto !important;
+        min-height: auto !important;
         display: none !important;
     }
 
-    .app-grid {
-        padding-top: 40px;
-        padding-bottom: 120px;
-        margin: auto;
+    /* Show only the active mobile panel */
+    .col-app.mobile-active {
+        display: flex !important;
     }
 
     .col-center {
-        width: 100%;
         max-width: 600px;
-        margin: 0 auto;
-        height: auto;
-        min-height: 570px;
     }
 }
 
