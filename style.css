@@ -2063,6 +2063,8 @@ body.long-break-mode .glass-panel {
 .welcome-card {
     max-width: 500px;
     width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
     text-align: center;
     transform: translateY(20px) scale(0.95);
     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -2123,6 +2125,13 @@ body.long-break-mode .glass-panel {
     .welcome-card {
         padding: 20px !important;
     }
+    .welcome-card h1 {
+        font-size: 1.4rem !important;
+    }
+    .welcome-card p {
+        font-size: 0.85rem !important;
+        margin-bottom: 15px !important;
+    }
     .welcome-features {
         gap: 10px !important;
     }
@@ -2132,7 +2141,7 @@ body.long-break-mode .glass-panel {
         gap: 5px !important;
     }
     .feature-icon {
-        font-size: 1.8rem !important;
+        font-size: 1.5rem !important;
     }
 
     /* Minesweeper grid extreme downscaling for mobile portrait */
