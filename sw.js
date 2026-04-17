@@ -1,61 +1,42 @@
-const CACHE_NAME = 'pomodoro-pro-v6';
-const ASSETS_TO_CACHE = [
-    './',
-    'index.html',
-    'style.css',
-    'script.js',
-    'manifest.json',
-    'images/favicon.png'
-];
+const CACHE_NAME = 'pomodoro-pro-v7';
 
-// Pre-caching logic doesn't cache all 40 background images immediately to save initial bandwidth. 
-// They will be cached dynamically as they are parsed/loaded by the user.
-
+// Network-first strategy: always try the network, fall back to cache
 self.addEventListener('install', (event) => {
+    self.skipWaiting(); // Force immediate activation
+});
+
+self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS_TO_CACHE);
-        })
+        caches.keys().then((keyList) =>
+            Promise.all(keyList.map((key) => {
+                if (key !== CACHE_NAME) {
+                    return caches.delete(key);
+                }
+            }))
+        ).then(() => self.clients.claim()) // Take control of all pages immediately
     );
 });
 
 self.addEventListener('fetch', (event) => {
-    // Only cache GET requests
     if (event.request.method !== 'GET') return;
 
-    // Do not cache API calls (weather or allOrigins) so they stay fresh!
+    // Skip caching for API calls
     if (event.request.url.includes('api.open-meteo.com') || event.request.url.includes('allorigins')) {
         return;
     }
 
+    // Network-first: try fresh copy, cache it, fall back to old cache
     event.respondWith(
-        caches.match(event.request).then((cachedResponse) => {
-            if (cachedResponse) {
-                return cachedResponse;
-            }
-            return fetch(event.request).then((networkResponse) => {
-                // Dynamically cache backgrounds and other image assets as they load
-                if (event.request.url.includes('/images/')) {
-                    const responseClone = networkResponse.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, responseClone);
-                    });
-                }
+        fetch(event.request)
+            .then((networkResponse) => {
+                const responseClone = networkResponse.clone();
+                caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, responseClone);
+                });
                 return networkResponse;
-            });
-        })
-    );
-});
-
-self.addEventListener('activate', (event) => {
-    const cacheWhitelist = [CACHE_NAME];
-    event.waitUntil(
-        caches.keys().then((keyList) =>
-            Promise.all(keyList.map((key) => {
-                if (!cacheWhitelist.includes(key)) {
-                    return caches.delete(key);
-                }
-            }))
-        )
+            })
+            .catch(() => {
+                return caches.match(event.request);
+            })
     );
 });
