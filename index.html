@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en"> <!-- Changed default lang to English for consistency -->
+
+<head>
+    <!--
+      *************************************************************************
+      *                                                                       *
+      *   █████╗ ███████╗███████╗████████╗██╗  ██╗███████╗████████╗██╗ ██████╗  *
+      *  ██╔══██╗██╔════╝██╔════╝╚══██╔══╝██║  ██║██╔════╝╚══██╔══╝██║██╔════╝  *
+      *  ███████║█████╗  ███████╗   ██║   ███████║█████╗     ██║   ██║██║      *
+      *  ██╔══██║██╔══╝  ╚════██║   ██║   ██╔══██║██╔══╝     ██║   ██║██║      *
+      *  ██║  ██║███████╗███████║   ██║   ██║  ██║███████╗   ██║   ██║╚██████╗ *
+      *  ╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝ ╚═════╝ *
+      *                                                                       *
+      *                     AESTHETIC POMODORO PRO                            *
+      *************************************************************************
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aesthetic Pomodoro Pro | Maximize Focus</title>
+
+    <!-- SEO & Metadata -->
+    <meta name="description" content="An elegant, Neumorphic Pomodoro timer built for ultimate productivity. Features nature backgrounds, binaural beats, dynamic calendar, and immersive overlays.">
+    <meta name="author" content="Aesthetic Pomodoro">
+    <meta name="theme-color" content="#ecf0f3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Open Graph (Social Sharing) -->
+    <meta property="og:title" content="Aesthetic Pomodoro Pro">
+    <meta property="og:description" content="An elegant, Neumorphic Pomodoro timer built for ultimate productivity.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="images/favicon.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="apple-touch-icon" href="images/favicon.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- FONTS & ASSETS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- LIBRARIES -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="focus-mode">
+
+    <!-- DYNAMIC ISLAND (Audio Control) -->
+    <div id="audio-dynamic-island" class="neo-island hidden">
+        <div class="island-content">
+            <div class="island-waveform">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <div class="island-info">
+                <div class="island-title">15Hz Neural Entrainment</div>
+                <div class="island-subtitle">Generative Audio Active</div>
+            </div>
+            <div class="island-controls" style="display: flex; gap: 8px;">
+                <button id="btn-island-toggle" class="neo-circle-btn small-btn" aria-label="Toggle Audio">
+                    <span id="island-icon" style="font-size: 1rem;">⏸️</span>
+                </button>
+                <div class="island-info-tooltip-wrapper">
+                    <button class="neo-circle-btn small-btn tooltip-btn" aria-label="Audio Info">
+                        <span style="font-size: 0.95rem; font-weight: bold; color: #777;">?</span>
+                    </button>
+                    <div id="island-tooltip-box" class="island-tooltip">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+                <button id="btn-island-close" class="neo-circle-btn small-btn" aria-label="Close Island">
+                    <span style="font-size: 1.1rem; margin-top: -2px;">x</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- 
+      ╔═══════════════════════════════════════════════════════════════════════╗
+      ║                     MAIN APPLICATION DESKTOP GRID                     ║
+      ╚═══════════════════════════════════════════════════════════════════════╝
+    -->
+    <main class="app-grid" id="main-desktop">
+
+        <!-- SECTION: CALENDAR (LEFT COLUMN) -->
+        <aside class="col-left col-app" id="col-calendar">
+            <div class="glass-panel calendar-container">
+                <header class="mac-header">
+                    <button class="mac-btn close" data-action="close" data-target="calendar"
+                        aria-label="Close Calendar"></button>
+                    <button class="mac-btn minimize" data-action="minimize" data-target="calendar"
+                        aria-label="Minimize Calendar"></button>
+                </header>
+                <div class="calendar-header">
+                    <button id="prev-month" class="icon-btn">&lt;</button>
+                    <h2 id="month-year" class="tracker-header mb-0 lg-text">Month</h2>
+                    <button id="next-month" class="icon-btn">&gt;</button>
+
+                    <!-- Helios .ics Integration -->
+                    <button id="btn-sync" class="icon-btn btn-sync ml-auto mr-sm" title="Sync via Helios Link">🔗 Sync
+                        Link</button>
+                    <button id="btn-planner-open" class="icon-btn btn-planner" title="Open Planner Overlay">📝</button>
+                </div>
+                <div class="calendar-weekdays">
+                    <div>Sun</div>
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                </div>
+                <div class="calendar-days" id="calendar-days">
+                    <!-- Days dynamically injected via Event Delegation -->
+                </div>
+
+                <!-- UPCOMING EVENTS WIDGET -->
+                <section class="upcoming-events-container">
+                    <h3>Coming Up (Next 3 Months)</h3>
+                    <ul id="upcoming-events-list" class="neo-event-list">
+                        <!-- Events injected here by script.js -->
+                    </ul>
+                </section>
+            </div>
+        </aside>
+
+        <!-- SECTION: POMODORO TIMER (CENTER COLUMN) -->
+        <section class="col-center col-app" id="col-timer">
+            <div class="glass-panel pomodoro-container">
+                <header class="mac-header">
+                    <button class="mac-btn close" data-action="close" data-target="timer"
+                        aria-label="Close Timer"></button>
+                    <button class="mac-btn minimize" data-action="minimize" data-target="timer"
+                        aria-label="Minimize Timer"></button>
+                </header>
+                <nav class="mode-selector mt-sm">
+                    <button class="mode-btn active" id="btn-focus">Focus</button>
+                    <button class="mode-btn" id="btn-short">Short Break</button>
+                    <button class="mode-btn" id="btn-long">Long Break</button>
+                </nav>
+
+                <div class="timer-container">
+                    <!-- Editable timer allows manual configuration on the fly -->
+                    <div class="timer-display" id="time-left" contenteditable="true" spellcheck="false"
+                        title="Click to edit time">25:00</div>
+                </div>
+
+                <nav class="controls">
+                    <button class="control-btn" id="btn-start">Start</button>
+                    <button class="control-btn" id="btn-pause">Pause</button>
+                    <button class="control-btn" id="btn-reset">Reset</button>
+                </nav>
+
+                <footer class="utilities flex-center gap-md">
+                    <div class="glass-custom-dropdown" id="alarm-selector">
+                        <div class="glass-dropdown-display" id="alarm-display">
+                            <span>🔔 Soft Bell</span>
+                        </div>
+                        <div class="glass-dropdown-menu" id="alarm-menu">
+                            <!-- Populated via script.js -->
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </section>
+
+        <!-- SECTION: SUBJECT TRACKER (RIGHT COLUMN) -->
+        <aside class="col-right col-app" id="col-tracker">
+            <div class="glass-panel subject-container">
+                <header class="mac-header">
+                    <button class="mac-btn close" data-action="close" data-target="tracker"
+                        aria-label="Close Tracker"></button>
+                    <button class="mac-btn minimize" data-action="minimize" data-target="tracker"
+                        aria-label="Minimize Tracker"></button>
+                </header>
+                <div style="display: flex; justify-content: space-between; align-items: baseline;"
+                    class="mt-negative mb-sm">
+                    <h2 class="tracker-header" style="margin-top: 0; margin-bottom: 0;">📚 Subject Tracker</h2>
+
+                    <!-- CUSTOM GLASSMORPHIC DROPDOWN -->
+                    <div class="glass-dropdown-wrapper">
+                        <div class="glass-dropdown-display" id="tracker-time-display">All-Time</div>
+                        <div class="glass-dropdown-menu" id="tracker-time-menu">
+                            <div class="glass-dropdown-item" data-value="daily">Daily</div>
+                            <div class="glass-dropdown-item" data-value="weekly">Weekly</div>
+                            <div class="glass-dropdown-item" data-value="monthly">Monthly</div>
+                            <div class="glass-dropdown-item" data-value="yearly">This Year</div>
+                            <div class="glass-dropdown-item" data-value="yearly-2">2 Years</div>
+                            <div class="glass-dropdown-item" data-value="yearly-3">3 Years</div>
+                            <div class="glass-dropdown-item" data-value="yearly-4">4 Years</div>
+                            <div class="glass-dropdown-item selected" data-value="all-time">All-Time</div>
+                        </div>
+                    </div>
+                </div>
+                <input type="text" id="subject-input" placeholder="Type a subject and press Enter..."
+                    class="minimal-input" autocomplete="off">
+
+                <div id="subject-list" class="subject-list-container">
+                    <!-- Cards with individual subject times -->
+                </div>
+
+                <!-- CHART CONTROLS -->
+                <div class="chart-toggle-container">
+                    <div class="chart-toggle-slider"></div>
+                    <button class="chart-toggle active" data-target="main" data-type="pie">Pie 🥧</button>
+                    <button class="chart-toggle" data-target="main" data-type="bar">Column 📊</button>
+                </div>
+
+                <div class="chart-wrapper" id="chart-container">
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- 
+      ╔═══════════════════════════════════════════════════════════════════════╗
+      ║                       MAC-INSPIRED DOCK MENU                          ║
+      ╚═══════════════════════════════════════════════════════════════════════╝
+    -->
+    <nav class="mac-dock-wrapper">
+        <ul class="mac-dock">
+            <li class="dock-item" data-app="calendar">
+                <div class="squircle calendar-icon">📅</div>
+                <div class="dock-dot active" id="dot-calendar"></div>
+            </li>
+            <li class="dock-item" id="btn-minesweeper-open">
+                <div class="squircle minesweeper-icon" style="font-size: 1.6rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.4), rgba(248, 113, 113, 0.2));">💣</div>
+                <div class="dock-dot" id="dot-minesweeper"></div>
+            </li>
+            <li class="dock-item" data-app="timer">
+                <div class="squircle timer-icon">⏱️</div>
+                <div class="dock-dot active" id="dot-timer"></div>
+            </li>
+            <li class="dock-item" data-app="tracker">
+                <div class="squircle tracker-icon">📚</div>
+                <div class="dock-dot active" id="dot-tracker"></div>
+            </li>
+            
+            <li class="dock-item" id="btn-sync-open" title="Backup & Restore Data">
+                <div class="squircle sync-icon" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(147, 197, 253, 0.2)); font-size: 1.4rem;">💾</div>
+            </li>
+
+            <li class="dock-separator"></li>
+
+            <li class="dock-item" data-external="spotify">
+                <div class="squircle spotify-icon">🎵</div>
+                <div class="dock-dot" id="dot-spotify"></div>
+            </li>
+            <li class="dock-item" data-external="gemini">
+                <div class="squircle gemini-icon">✨</div>
+                <div class="dock-dot" id="dot-gemini"></div>
+            </li>
+            <li class="dock-item" data-external="chatgpt">
+                <div class="squircle chatgpt-icon">💬</div>
+                <div class="dock-dot" id="dot-chatgpt"></div>
+            </li>
+            <li class="dock-item" data-action="reload">
+                <div class="squircle reload-icon" style="font-size: 1.6rem;">🔄</div>
+                <div class="dock-dot"></div>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- 
+      ╔═══════════════════════════════════════════════════════════════════════╗
+      ║                     OVERLAY: NEUMORPHIC PLANNER                       ║
+      ╚═══════════════════════════════════════════════════════════════════════╝
+    -->
+    <section id="planner-overlay" class="planner-overlay-hidden" aria-hidden="true">
+        <div class="planner-modal">
+            <header class="mac-header absolute-header">
+                <button class="mac-btn close" id="btn-planner-close" aria-label="Close Planner Overlay"></button>
+            </header>
+
+            <div class="planner-body">
+                <!-- PLANNER: LEFT WIDGET COLUMN -->
+                <aside class="planner-left-col">
+
+                    <!-- WIDGET: WEATHER -->
+                    <div class="neo-card" draggable="true" id="widget-weather">
+                        <div style="display: flex; justify-content: space-between; align-items:flex-start;">
+                            <div style="position: relative;">
+                                <h3>Weather</h3>
+                                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 15px;">
+                                    <div class="neo-subtitle weather-location-display" id="weather-location"
+                                        style="cursor: pointer; display: inline-block;">Athens ⌄</div>
+                                    <button id="weather-save-btn" title="Save this location"
+                                        style="background:none; border:none; cursor:pointer; font-size:1.1rem; padding:2px 4px; line-height:1; opacity:0.45; transition: opacity 0.2s, transform 0.2s;">☆</button>
+                                </div>
+
+                                <div id="weather-search-container"
+                                    style="display: none; position: absolute; top: 25px; left: 0; z-index: 200;">
+                                    <input type="text" id="weather-city-input" class="minimal-input"
+                                        placeholder="Search city..." autocomplete="off"
+                                        style="width: 150px; padding: 6px 12px; font-size: 0.85rem; margin-bottom: 5px;">
+                                    <ul id="weather-city-results" class="glass-dropdown-menu"
+                                        style="display: none; position: absolute; top: 100%; left: 0; width: 220px; max-height: 200px; overflow-y: auto; list-style: none; padding: 5px; margin: 0; z-index: 100;">
+                                        <!-- City results go here -->
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="weather-huge-icon" id="weather-icon-dyn"
+                                style="font-size: 3rem; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1));">🌤️</div>
+                        </div>
+                        <div class="weather-temps"
+                            style="display: flex; align-items: flex-end; gap: 15px; margin-top: -10px;">
+                            <div id="weather-temp-now"
+                                style="font-size: 3.5rem; font-weight: 700; color: #333; line-height: 1; letter-spacing:-2px;">
+                                --°</div>
+                            <div style="padding-bottom: 5px;">
+                                <div id="weather-desc" style="font-size: 1.05rem; color: #555; font-weight:700;">
+                                    Loading...</div>
+                                <div style="font-size: 0.85rem; color: #888; font-weight: 500; margin-top: 2px;">
+                                    Feels like <span id="weather-feels-like">--°</span>
+                                    <span style="margin: 0 4px; color: #ccc;">|</span>
+                                    <span id="weather-hl">H:--° L:--°</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="weather-details"
+                            style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; font-size: 0.85rem; font-weight:600; color: #888; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 15px; text-align: center;">
+                            <div title="Humidity"
+                                style="display: flex; flex-direction: column; align-items: center; gap:3px;">
+                                <span style="font-size: 1.1rem; opacity: 0.7;">💧</span>
+                                <span id="weather-hum" style="color:#555">--%</span>
+                            </div>
+                            <div title="Wind Speed"
+                                style="display: flex; flex-direction: column; align-items: center; gap:3px; border-left: 1px solid rgba(0,0,0,0.05); border-right: 1px solid rgba(0,0,0,0.05);">
+                                <span style="font-size: 1.1rem; opacity: 0.7;">💨</span>
+                                <span id="weather-wind" style="color:#555">-- km/h</span>
+                            </div>
+                            <div title="Precipitation"
+                                style="display: flex; flex-direction: column; align-items: center; gap:3px;">
+                                <span style="font-size: 1.1rem; opacity: 0.7;">☔</span>
+                                <span id="weather-rain" style="color:#555">-- mm</span>
+                            </div>
+                        </div>
+
+                        <!-- SAVED LOCATIONS -->
+                        <div id="weather-saved-bar"
+                            style="margin-top: 16px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 14px; display: none;">
+                            <div
+                                style="font-size: 0.75rem; font-weight: 700; color: #aaa; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px;">
+                                Saved Locations</div>
+                            <div id="weather-saved-list" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                <!-- Saved city pills go here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WIDGET: UPCOMING EVENTS -->
+                    <div class="neo-card" draggable="true" id="widget-events">
+                        <h3>Next Events</h3>
+                        <div class="neo-subtitle">Upcoming 14 Days</div>
+                        <ul id="event-list" class="neo-event-list"></ul>
+                    </div>
+                </aside>
+
+                <!-- PLANNER: RIGHT CALENDAR COLUMN -->
+                <main class="planner-right-col">
+                    <!-- NAVIGATION BAR + CLOCK (unified row) -->
+                    <nav class="neo-top-nav"
+                        style="display:flex; align-items:center; justify-content:space-between; gap:15px; flex-wrap: nowrap;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div class="nav-arrows">
+                                <button class="neo-circle-btn" id="btn-neo-prev-month">&lt;</button>
+                                <button class="neo-circle-btn" id="btn-neo-next-month">&gt;</button>
+                            </div>
+                            <div class="nav-dropdowns">
+                                <div class="neo-custom-dropdown" style="position: relative;">
+                                    <div class="neo-pill-btn" id="neo-month-display">January ⌄</div>
+                                    <div class="neo-dropdown-menu" id="neo-month-menu"></div>
+                                </div>
+                                <div class="neo-custom-dropdown" style="position: relative;">
+                                    <div class="neo-pill-btn" id="neo-year-display">2024 ⌄</div>
+                                    <div class="neo-dropdown-menu" id="neo-year-menu"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CLOCK (inline pill) -->
+                        <div id="widget-clock"
+                            style="display:flex; align-items:center; gap:12px; padding: 10px 22px; background: #ecf0f3; border-radius: 40px; box-shadow: 5px 5px 10px #d1d9e6, -5px -5px 10px #ffffff; white-space:nowrap;">
+                            <div style="font-size: 1.3rem; filter: drop-shadow(1px 2px 4px rgba(0,0,0,0.1));">🕒</div>
+                            <div>
+                                <div id="live-clock"
+                                    style="font-size:1.2rem; font-weight:700; color:#333; line-height:1;">00:00 AM</div>
+                                <div id="live-date"
+                                    style="font-size:0.72rem; color:#888; font-weight:500; margin-top:2px;">...</div>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <!-- NEUMORPHIC INTERACTIVE CALENDAR -->
+                    <div class="neo-card main-neo-calendar" id="widget-neo-calendar">
+                        <div class="neo-weekdays">
+                            <div>SUN</div>
+                            <div>MON</div>
+                            <div>TUE</div>
+                            <div>WED</div>
+                            <div>THU</div>
+                            <div>FRI</div>
+                            <div>SAT</div>
+                        </div>
+                        <div class="neo-calendar-days" id="neo-calendar-days">
+                            <!-- Injected by script.js -->
+                        </div>
+                    </div>
+
+
+                </main>
+            </div>
+        </div>
+    </section>
+
+    <!-- 
+      ╔═══════════════════════════════════════════════════════════════════════╗
+      ║                     MODAL: EVENT / SCHEDULE VIEW                      ║
+      ╚═══════════════════════════════════════════════════════════════════════╝
+    -->
+    <section id="event-modal" class="planner-overlay-hidden" aria-hidden="true">
+        <div class="neo-card modal-card">
+            <header class="mac-header mb-md">
+                <button class="mac-btn close" id="btn-event-modal-close" aria-label="Close Event Modal"></button>
+            </header>
+
+            <!-- DAILY TRACKING CHART (INSIDE MODAL) -->
+            <div id="daily-chart-controls" class="chart-toggle-container" style="display: none;">
+                <div class="chart-toggle-slider"></div>
+                <button class="chart-toggle active" data-target="daily" data-type="pie">Pie 🥧</button>
+                <button class="chart-toggle" data-target="daily" data-type="bar">Column 📊</button>
+            </div>
+
+            <div id="daily-chart-wrapper" class="chart-wrapper mb-md" style="display: none; height: 140px;">
+                <canvas id="dailyChart"></canvas>
+            </div>
+
+            <!-- EXISTING EVENTS PREVIEW -->
+            <ul id="existing-events-list" class="neo-event-list limit-height"></ul>
+
+            <h3 class="mb-md mt-sm">Add New Event</h3>
+            <input type="hidden" id="event-date-input">
+
+            <div class="mb-sm" style="position: relative;">
+                <label class="modal-label">Event Type:</label>
+                <!-- Custom Neumorphic Select -->
+                <div id="neo-select-wrapper" style="position: relative;">
+                    <div id="neo-select-display" class="neo-custom-select-display full-width-select" tabindex="0">Single
+                        Event</div>
+                    <ul id="neo-select-options" class="glass-dropdown-menu"
+                        style="display: none; position: absolute; top: 100%; left: 0; width: 100%; z-index: 100; margin-top: 5px; list-style: none; padding: 5px; border-radius: 12px;">
+                        <li class="glass-dropdown-item active" data-value="single">Single Event</li>
+                        <li class="glass-dropdown-item" data-value="weekly">Weekly Schedule</li>
+                        <li class="glass-dropdown-item" data-value="yearly">Yearly (Permanent)</li>
+                    </ul>
+                    <input type="hidden" id="event-type-select" value="single">
+                </div>
+            </div>
+
+            <div class="mb-sm">
+                <label class="modal-label">Title:</label>
+                <input type="text" id="event-title-input" class="minimal-input full-width-input"
+                    placeholder="e.g. Study Physics..." autocomplete="off">
+            </div>
+
+            <div id="event-weeks-container" class="hidden-container mb-md">
+                <label class="modal-label">Duration (Weeks):</label>
+                <input type="number" id="event-weeks-input" class="minimal-input full-width-input" min="1" max="52"
+                    value="4">
+            </div>
+
+            <div class="modal-footer flex-end mt-lg">
+                <button class="neo-pill-btn modal-cancel-btn" id="btn-event-cancel">Cancel</button>
+                <button class="neo-pill-btn modal-save-btn" id="event-save-btn">Save Event</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 
+      ╔═══════════════════════════════════════════════════════════════════════╗
+      ║                     OVERLAY: MINESWEEPER                              ║
+      ╚═══════════════════════════════════════════════════════════════════════╝
+    -->
+    <section id="minesweeper-overlay" class="planner-overlay-hidden" aria-hidden="true">
+        <div class="neo-card modal-card" style="width: auto; max-width: 95vw; max-height: 95vh; display: flex; flex-direction: column; overflow: hidden;">
+            <header class="mac-header mb-md" style="flex-shrink: 0;">
+                <button class="mac-btn close" id="btn-minesweeper-close" aria-label="Close Minesweeper"></button>
+                <button class="mac-btn minimize" id="btn-minesweeper-min" aria-label="Minimize Minesweeper"></button>
+            </header>
+            
+            <div class="minesweeper-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0;">
+                <button class="neo-pill-btn" id="ms-btn-action" style="min-width: 120px;">Mode: 👆 Reveal</button>
+                <div style="font-size: 1.8rem; font-weight: bold; color: #333; font-variant-numeric: tabular-nums;" id="ms-timer">000</div>
+                <div style="font-size: 1.5rem; font-weight: bold; color: #333;"><span id="ms-mines-count">10</span> 💣</div>
+            </div>
+
+            <div class="ms-grid-container" style="position: relative; overflow: auto; flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 10px; border-radius: 15px; box-shadow: inset 5px 5px 10px #d1d9e6, inset -5px -5px 10px #ffffff; background: #ecf0f3;">
+                <div id="ms-grid" class="ms-grid"></div>
+
+                <!-- MS LEADERBOARD OVERLAY -->
+                <div id="ms-leaderboard" style="display: none; position: absolute; top:0; left:0; width: 100%; height: 100%; background: rgba(236, 240, 243, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); flex-direction: column; align-items: center; padding: 20px; z-index: 10; border-radius: 15px;">
+                    <h2 style="margin-top: 0; margin-bottom: 20px; color: #333;">🏆 High Scores</h2>
+                    
+                    <div style="display:flex; width: 100%; max-width: 400px; gap: 10px; margin-bottom: 15px; justify-content: space-between;">
+                         <button class="neo-pill-btn ms-tab-btn" data-ms-diff="beginner" style="flex:1; padding: 8px 5px; font-size: 0.85rem; box-shadow: inset 4px 4px 8px #d1d9e6, inset -4px -4px 8px #ffffff;">Beginner</button>
+                         <button class="neo-pill-btn ms-tab-btn" data-ms-diff="intermediate" style="flex:1; padding: 8px 5px; font-size: 0.85rem;">Intermediate</button>
+                         <button class="neo-pill-btn ms-tab-btn" data-ms-diff="expert" style="flex:1; padding: 8px 5px; font-size: 0.85rem;">Expert</button>
+                    </div>
+                    
+                    <ul id="ms-score-list" class="neo-event-list" style="width: 100%; max-width: 400px; flex-grow: 1; max-height: none; overflow-y: auto;">
+                        <!-- scores injected via JS -->
+                    </ul>
+                    
+                    <button class="neo-pill-btn" id="ms-close-leaderboard" style="margin-top:20px; width:100%; max-width:200px;">Close Scores</button>
+                </div>
+            </div>
+
+            <div class="minesweeper-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-shrink: 0;">
+                <button class="neo-pill-btn" id="ms-btn-restart">Restart Game</button>
+                <button class="neo-circle-btn small-btn" id="ms-btn-scores" aria-label="High Scores" style="font-size: 1.2rem;">🏆</button>
+                <div id="ms-diff-wrapper" class="neo-custom-dropdown" style="position: relative;">
+                    <div id="ms-diff-display" class="neo-pill-btn" style="cursor: pointer; min-width: 170px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Beginner (9x9)</span>
+                        <span style="opacity: 0.6; font-size: 0.8rem;">▼</span>
+                    </div>
+                    <ul id="ms-diff-options" class="neo-dropdown-menu" style="top: auto; bottom: 100%; right: 0; margin-top: 0; margin-bottom: 8px; width: 100%; padding: 5px; list-style: none; overflow: hidden;">
+                        <li class="neo-dropdown-item active" data-value="beginner">Beginner (9x9)</li>
+                        <li class="neo-dropdown-item" data-value="intermediate">Intermediate</li>
+                        <li class="neo-dropdown-item" data-value="expert">Expert (30x16)</li>
+                    </ul>
+                    <input type="hidden" id="ms-difficulty" value="beginner">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DATA BACKUP / SYNC OVERLAY -->
+    <div id="sync-overlay" class="welcome-overlay" aria-hidden="true">
+        <div class="neo-card welcome-card" style="max-width: 400px; padding: 25px;">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0; font-size: 1.5rem; color: #333;">Data Backup</h2>
+                <button class="mac-btn close" id="btn-sync-close" aria-label="Close Backup"></button>
+            </header>
+            <p style="opacity: 0.8; margin-bottom: 25px; line-height: 1.5; color: #555;">Export your study statistics, schedule, and high scores to a file, or restore them onto any device.</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button id="btn-data-export" class="neo-pill-btn" style="background: rgba(46, 204, 113, 0.15); border: 1px solid rgba(46, 204, 113, 0.3); padding: 15px; font-weight: 600; width: 100%;">📥 Download Backup (.json)</button>
+                <div style="position: relative;">
+                    <button class="neo-pill-btn" style="background: rgba(243, 156, 18, 0.15); border: 1px solid rgba(243, 156, 18, 0.3); padding: 15px; font-weight: 600; width: 100%; pointer-events: none;">📤 Restore Backup</button>
+                    <input type="file" id="data-import-file" accept=".json" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+                </div>
+                <div id="sync-msg" style="font-size: 0.9rem; color: #2ea043; opacity: 0; transition: opacity 0.3s; margin-top: 5px; font-weight: 600;">Data saved successfully!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WELCOME / ONBOARDING OVERLAY -->
+    <div id="welcome-overlay" class="welcome-overlay" aria-hidden="true">
+        <div class="neo-card welcome-card">
+            <h1 style="font-size: 1.8rem; margin-bottom: 10px; font-weight: 700; color: #333;">Welcome to Aesthetic Pomodoro</h1>
+            <p style="opacity: 0.8; margin-bottom: 25px; line-height: 1.6; color: #555;">Your ultimate elegant workspace to maximize productivity and achieve deep focus.</p>
+            
+            <div class="welcome-features" style="display: flex; flex-direction: column; gap: 15px; text-align: left;">
+                <div class="feature-item" style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 12px; box-shadow: inset 2px 2px 5px rgba(255,255,255,0.7), inset -2px -2px 5px rgba(0,0,0,0.03);">
+                    <div class="feature-icon" style="font-size: 1.8rem; flex-shrink: 0;">✨</div>
+                    <div class="feature-text">
+                        <strong style="display: block; color: #222; margin-bottom: 3px;">Ambient Nature Layout</strong>
+                        <span style="font-size: 0.85rem; color: #555;">Enjoy auto-rotating 4K photography and a sleek Frosted Glass aesthetic UI.</span>
+                    </div>
+                </div>
+                <div class="feature-item" style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 12px; box-shadow: inset 2px 2px 5px rgba(255,255,255,0.7), inset -2px -2px 5px rgba(0,0,0,0.03);">
+                    <div class="feature-icon" style="font-size: 1.8rem; flex-shrink: 0;">🎵</div>
+                    <div class="feature-text">
+                        <strong style="display: block; color: #222; margin-bottom: 3px;">Binaural Neural Audio</strong>
+                        <span style="font-size: 0.85rem; color: #555;">Listen to immersive binaural beats synthesized live for deep focus.</span>
+                    </div>
+                </div>
+                <div class="feature-item" style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 12px; box-shadow: inset 2px 2px 5px rgba(255,255,255,0.7), inset -2px -2px 5px rgba(0,0,0,0.03);">
+                    <div class="feature-icon" style="font-size: 1.8rem; flex-shrink: 0;">📅</div>
+                    <div class="feature-text">
+                        <strong style="display: block; color: #222; margin-bottom: 3px;">Integrated Planner & Weather</strong>
+                        <span style="font-size: 0.85rem; color: #555;">Sync events, track subjects and check live weather from the Neumorphic Planner.</span>
+                    </div>
+                </div>
+                <div class="feature-item" style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 12px; box-shadow: inset 2px 2px 5px rgba(255,255,255,0.7), inset -2px -2px 5px rgba(0,0,0,0.03);">
+                    <div class="feature-icon" style="font-size: 1.8rem; flex-shrink: 0;">💣</div>
+                    <div class="feature-text">
+                        <strong style="display: block; color: #222; margin-bottom: 3px;">Minesweeper Break Mode</strong>
+                        <span style="font-size: 0.85rem; color: #555;">Relax properly during breaks with a clean, fully-functioning Minesweeper!</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="btn-welcome-start" class="neo-pill-btn" style="width: 100%; margin-top: 30px; font-size: 1.1rem; padding: 15px; background: #3b82f6; color: white;">Continue to Workspace</button>
+        </div>
+    </div>
+
+    <!-- BOOTSTRAP SCRIPT & PWA REGISTRATION -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed: ', err));
+            });
+        }
+    </script>
+    <script src="script.js"></script>
+
+    <!-- 
+      (EASTER EGG)
+      
+          \\
+           \\_
+           /_/ ___
+          <___/_ _>
+             / \
+             
+      "Focus like a bird... but high quality."
+    -->
+</body>
+
+</html>
