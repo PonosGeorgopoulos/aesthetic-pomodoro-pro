@@ -2878,6 +2878,21 @@
             document.getElementById('dot-minesweeper')?.classList.add('active');
             
             elMsGrid.dataset.diff = elMsDifficulty.value;
+            
+            // Adjust modal width for larger difficulties
+            const msModalCard = document.getElementById('ms-modal-card');
+            if (msModalCard) {
+                if (elMsDifficulty.value === 'expert') {
+                    msModalCard.style.width = 'fit-content';
+                    msModalCard.style.maxWidth = '98vw';
+                } else if (elMsDifficulty.value === 'intermediate') {
+                    msModalCard.style.width = 'fit-content';
+                    msModalCard.style.maxWidth = '90vw';
+                } else {
+                    msModalCard.style.width = '400px';
+                }
+            }
+
             elMsGrid.style.gridTemplateColumns = `repeat(${msCols}, 1fr)`;
             elMsGrid.innerHTML = '';
             
