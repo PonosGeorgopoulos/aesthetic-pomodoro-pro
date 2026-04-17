@@ -2198,4 +2198,37 @@ body.long-break-mode .glass-panel {
     #ms-btn-scores {
         margin: 0 auto;
     }
+
+    /* Dock bar - shrink to fit portrait mobile */
+    .mac-dock-wrapper {
+        bottom: 8px !important;
+    }
+    .mac-dock {
+        height: 50px !important;
+        padding: 4px 8px !important;
+        gap: 4px !important;
+        border-radius: 18px !important;
+    }
+    .dock-item {
+        width: 38px !important;
+        height: 38px !important;
+    }
+    .dock-item:hover {
+        width: 38px !important;
+        height: 38px !important;
+        margin: 0 !important;
+        transform: none !important;
+    }
+    .squircle {
+        font-size: 1.3rem !important;
+        border-radius: 12px !important;
+    }
+    .dock-separator {
+        margin: 0 3px !important;
+    }
+    .dock-dot {
+        width: 3px !important;
+        height: 3px !important;
+        margin-top: 2px !important;
+    }
 }
