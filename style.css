@@ -291,6 +291,7 @@ body {
     body {
         align-items: flex-start;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .app-grid {
@@ -306,11 +307,12 @@ body {
     .col-left,
     .col-center,
     .col-right {
-        width: 100% !important;
+        width: 95% !important;
         max-width: 500px;
         margin: 0 auto;
         height: auto !important;
         min-height: auto !important;
+        max-height: none !important;
         display: none !important;
     }
 
@@ -321,6 +323,28 @@ body {
 
     .col-center {
         max-width: 600px;
+    }
+
+    /* Make all glass panels expand to fit their content on mobile */
+    .glass-panel {
+        height: auto !important;
+        max-height: none !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+    }
+
+    .subject-container {
+        height: auto !important;
+        overflow-y: visible !important;
+    }
+
+    .calendar-container {
+        height: auto !important;
+        overflow-y: visible !important;
+    }
+
+    .pomodoro-container {
+        min-height: 500px;
     }
 }
 
