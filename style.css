@@ -2049,7 +2049,10 @@ body.long-break-mode .glass-panel {
     z-index: 10000;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px 0;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.4s ease, visibility 0.4s ease;
@@ -2063,8 +2066,8 @@ body.long-break-mode .glass-panel {
 .welcome-card {
     max-width: 500px;
     width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
+    margin: auto;
+    flex-shrink: 0;
     text-align: center;
     transform: translateY(20px) scale(0.95);
     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -2123,25 +2126,37 @@ body.long-break-mode .glass-panel {
 
     /* Modals & Welcome screen */
     .welcome-card {
-        padding: 20px !important;
+        padding: 15px !important;
+        margin: 10px auto !important;
     }
     .welcome-card h1 {
-        font-size: 1.4rem !important;
+        font-size: 1.2rem !important;
+        margin-bottom: 5px !important;
     }
-    .welcome-card p {
-        font-size: 0.85rem !important;
-        margin-bottom: 15px !important;
+    .welcome-card > p {
+        font-size: 0.8rem !important;
+        margin-bottom: 10px !important;
     }
     .welcome-features {
-        gap: 10px !important;
+        gap: 8px !important;
     }
     .feature-item {
-        flex-direction: column !important;
-        text-align: center;
-        gap: 5px !important;
+        padding: 8px !important;
+        gap: 8px !important;
+    }
+    .feature-item .feature-text strong {
+        font-size: 0.85rem !important;
+    }
+    .feature-item .feature-text span {
+        font-size: 0.75rem !important;
     }
     .feature-icon {
-        font-size: 1.5rem !important;
+        font-size: 1.3rem !important;
+    }
+    #btn-welcome-start {
+        margin-top: 15px !important;
+        padding: 12px !important;
+        font-size: 1rem !important;
     }
 
     /* Minesweeper grid extreme downscaling for mobile portrait */
