@@ -1,20 +1,8 @@
 (function () {
     'use strict';
 
-    /*
-      *****************************************************************************
-      *                                                                           *
-      *   ██████╗███████╗███████╗    ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗ *
-      *  ██╔════╝██╔════╝██╔════╝    ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝ *
-      *  ██║     ███████╗███████╗    ███████╗██║     ██████╔╝██║██████╔╝   ██║    *
-      *  ██║     ╚════██║╚════██║    ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║    *
-      *  ╚██████╗███████║███████║    ███████║╚██████╗██║  ██║██║██║        ██║    *
-      *   ╚═════╝╚══════╝╚══════╝    ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝    *
-      *                                                                           *
-      *                  AESTHETIC POMODORO PRO - CORE LOGIC                      *
-      *****************************************************************************
-    
-    */
+    /* AESTHETIC POMODORO PRO β€” CORE LOGIC */
+
 
     // --------------------------------------------------------------------------
     //  [1] GLOBAL STATE & CONFIGURATION
@@ -359,7 +347,6 @@
         longBtn: document.getElementById('btn-long'),
         subjectInput: document.getElementById('subject-input'),
         subjectList: document.getElementById('subject-list'),
-        alarmSoundSelect: document.getElementById('alarm-sound'), // Removed in HTML but ref kept for safety or replaced
         alarmSelector: document.getElementById('alarm-selector'),
         alarmDisplay: document.getElementById('alarm-display'),
         alarmMenu: document.getElementById('alarm-menu'),
@@ -369,8 +356,28 @@
         islandCloseBtn: document.getElementById('btn-island-close')
     };
 
-    // Notification Init
-    // if ("Notification" in window) Notification.requestPermission();
+    // --------------------------------------------------------------------------
+    //  [3.5] SHARED UTILITY HELPERS
+    // --------------------------------------------------------------------------
+
+    /** Formats a Date object as 'YYYY-MM-DD' */
+    function toDateStr(d) {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    /** Chart.js tooltip callback — shared between main and daily charts */
+    function chartTooltipLabel(context) {
+        let mins = Math.round(context.raw);
+        let h = Math.floor(mins / 60);
+        let m = mins % 60;
+        return context.label + ': ' + (h > 0 ? h + 'h ' + m + 'm' : m + 'm');
+    }
+
+    /** Checks if St. George's name day (Apr 23) should be skipped due to Easter shift */
+    function shouldSkipGeorge(dateStr, year, movableNamedays) {
+        return dateStr === "04-23" && movableNamedays[dateStr] === undefined &&
+            new Date(year, 3, 23, 12).getTime() < getOrthodoxEaster(year).getTime();
+    }
 
     // --------------------------------------------------------------------------
     //  [4] CORE LOGIC & TIMER ENGINE
@@ -708,15 +715,14 @@
                 subjectData[State.activeSubject] = (subjectData[State.activeSubject] || 0) + elapsed;
 
                 const now = new Date();
-                const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                const todayStr = toDateStr(now);
                 if (!dailySubjectData[todayStr]) dailySubjectData[todayStr] = {};
                 dailySubjectData[todayStr][State.activeSubject] = (dailySubjectData[todayStr][State.activeSubject] || 0) + elapsed;
 
-                renderSubjectList(); // Visual live feedback
-                
                 State.focusSyncAcc = (State.focusSyncAcc || 0) + elapsed;
                 if (State.focusSyncAcc >= 5) {
                     saveSubjects();
+                    renderSubjectList(); // Visual live feedback every 5s
                     renderChart();
                     State.focusSyncAcc = 0;
                 }
@@ -726,7 +732,7 @@
                 State.breakTime += elapsed;
 
                 const now = new Date();
-                const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                const todayStr = toDateStr(now);
                 if (!dailySubjectData[todayStr]) dailySubjectData[todayStr] = {};
                 dailySubjectData[todayStr]['__BREAKS__'] = (dailySubjectData[todayStr]['__BREAKS__'] || 0) + elapsed;
 
@@ -752,13 +758,6 @@
         }, 1000);
     }
 
-    /*
-       (EASTER EGG)
-         |\__/,|   (`\
-       _.|o o  |_   ) )
-     -(((---(((--------
-       "Meow! Keep going, you're doing great!"
-    */
 
     function pauseTimer() {
         clearInterval(State.timer);
@@ -850,14 +849,6 @@
         return { subjects: filteredData, breaks: filteredBreaks };
     }
 
-    /*
-       (EASTER EGG)
-           ,___,
-           (o,o)
-          /)__)
-          -"--"-
-       "Wisely tracking your time..."
-    */
 
     /**
      * Renders the interactive list of subjects in the sidebar.
@@ -956,13 +947,7 @@
                         legend: { position: State.mainChartType === 'pie' ? 'right' : 'top' },
                         tooltip: {
                             callbacks: {
-                                label: function (context) {
-                                    let mins = Math.round(context.raw);
-                                    let h = Math.floor(mins / 60);
-                                    let m = mins % 60;
-                                    let str = h > 0 ? h + 'h ' + m + 'm' : m + 'm';
-                                    return context.label + ': ' + str;
-                                }
+                                label: chartTooltipLabel
                             }
                         }
                     },
@@ -1042,16 +1027,6 @@
         return res;
     }
 
-    /*
-       (EASTER EGG)
-          _________
-         /        /|
-        /        / |
-       /________/ /
-       |  BOOK  |/
-       '--------'
-       "Knowledge is the key to progress."
-    */
 
     const fixedHolidays = {
         "01-01": "Πρωτοχρονιά", "01-06": "Θεοφάνια", "03-25": "Εθνική Επέτειος", "05-01": "Εργατική Πρωτομαγιά",
@@ -1152,7 +1127,7 @@
 
             // Name Day logic (with Easter-shift edge cases)
             let nDays = [];
-            let skipGeorge = (dateStr === "04-23" && movable.namedays[dateStr] === undefined && new Date(year, 3, 23, 12).getTime() < getOrthodoxEaster(year).getTime());
+            let skipGeorge = shouldSkipGeorge(dateStr, year, movable.namedays);
             if (fixedNameDays[dateStr] && !skipGeorge) nDays.push(fixedNameDays[dateStr]);
             if (movable.namedays[dateStr]) nDays.push(movable.namedays[dateStr]);
 
@@ -1188,13 +1163,6 @@
         renderUpcomingEvents();
     }
 
-    /*
-       (EASTER EGG)
-              \ _ /
-            -= (_) =-
-              /   \
-       "The sun is shining, keep shining too!"
-    */
 
     /**
      * Populates the 'Upcoming Events' scrollable list (90-day window).
@@ -1369,7 +1337,7 @@
 
             let tooltips = [];
             let isEvent = (fixedHolidays[dateStr] || movable.holidays[dateStr]);
-            let skipGeorge = (dateStr === "04-23" && movable.namedays[dateStr] === undefined && new Date(year, 3, 23, 12).getTime() < getOrthodoxEaster(year).getTime());
+            let skipGeorge = shouldSkipGeorge(dateStr, year, movable.namedays);
             let isNameDay = (fixedNameDays[dateStr] && !skipGeorge) || movable.namedays[dateStr];
 
             if (isEvent) tooltips.push('Holiday: ' + (fixedHolidays[dateStr] || movable.holidays[dateStr]));
@@ -1396,6 +1364,48 @@
             }
             container.appendChild(dayDiv);
         }
+    }
+
+    /**
+     * Schedules an automatic calendar refresh exactly at midnight.
+     * Uses a recursive setTimeout so it fires at 00:00:00 regardless
+     * of when the page was loaded, and repeats every night.
+     */
+    function scheduleMidnightRefresh() {
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0); // Target: exactly midnight
+
+        const msUntilMidnight = tomorrow - now;
+
+        setTimeout(() => {
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            // Only auto-advance if the user hasn't manually navigated away from
+            // the previous day's month (respect intentional navigation)
+            if (
+                State.calendarDate.getMonth() === yesterday.getMonth() &&
+                State.calendarDate.getFullYear() === yesterday.getFullYear()
+            ) {
+                State.calendarDate = new Date(today);
+            }
+            if (
+                State.neoCalDate.getMonth() === yesterday.getMonth() &&
+                State.neoCalDate.getFullYear() === yesterday.getFullYear()
+            ) {
+                State.neoCalDate = new Date(today);
+            }
+
+            renderCalendar();
+            renderNeoCalendar();
+            renderUpcomingEvents();
+
+            // Schedule the next midnight — keeps running every night
+            scheduleMidnightRefresh();
+        }, msUntilMidnight);
     }
 
     // --------------------------------------------------------------------------
@@ -1482,20 +1492,6 @@
         if (count === 0) list.innerHTML = '<li class="neo-list-item" style="color:#888; justify-content:center;">No upcoming events! 😴</li>';
     }
 
-    /*
-       (EASTER EGG)
-                 .       .
-                / \     / \
-               |   |   |   |
-               |   |   |   |
-               |   |   |   |
-               |   |___|   |
-               |           |
-               |  ( ) ( )  |
-               \           /
-                \_________/
-       "Rex says: Time to focus!"
-    */
 
     /**
      * Fetches live weather data for Athens using Open-Meteo (API-key free).
@@ -1860,7 +1856,7 @@
             if (movHols.holidays[shortDateStr]) allEvents.push({ title: movHols.holidays[shortDateStr], type: 'holiday' });
 
             // Aggregate Name Days
-            let skipGeorge = (shortDateStr === "04-23" && movHols.namedays[shortDateStr] === undefined && new Date(year, 3, 23, 12).getTime() < getOrthodoxEaster(year).getTime());
+            let skipGeorge = shouldSkipGeorge(shortDateStr, year, movHols.namedays);
             if (fixedNameDays[shortDateStr] && !skipGeorge) allEvents.push({ title: fixedNameDays[shortDateStr], type: 'nameday' });
             if (movHols.namedays[shortDateStr]) allEvents.push({ title: movHols.namedays[shortDateStr], type: 'nameday' });
 
@@ -1974,13 +1970,7 @@
                             legend: { position: State.dailyChartType === 'pie' ? 'right' : 'top', labels: { boxWidth: 10, font: { size: 10 } } },
                             tooltip: {
                                 callbacks: {
-                                    label: function (context) {
-                                        let mins = Math.round(context.raw);
-                                        let h = Math.floor(mins / 60);
-                                        let m = mins % 60;
-                                        let str = h > 0 ? h + 'h ' + m + 'm' : m + 'm';
-                                        return context.label + ': ' + str;
-                                    }
+                                    label: chartTooltipLabel
                                 }
                             }
                         },
@@ -1998,15 +1988,6 @@
         }
     }
 
-    /*
-       (EASTER EGG)
-           ( (
-            ) )
-          .---.
-         |     |o
-         '---'
-       "Enjoy a cup of tea, you've earned it."
-    */
 
     /**
      * Logic for deleting a specific event entry across different storage buckets.
@@ -2058,6 +2039,7 @@
         initNeoSelectors();
         renderCalendar();
         renderNeoCalendar();
+        scheduleMidnightRefresh(); // Auto-refresh calendar when day changes at midnight
         fetchNeoWeather();
         initAlarmSelector();
         // Auto-refresh weather every 3 hours (3 * 60 * 60 * 1000 = 10,800,000 ms)
@@ -2377,7 +2359,7 @@
         // --- 8. PLANNER ACTIONS ---
         document.getElementById('btn-add-neo-event')?.addEventListener('click', () => {
             const now = new Date();
-            const ds = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const ds = toDateStr(now);
             openEventModal(ds);
         });
 
@@ -2689,15 +2671,7 @@
             renderPills();
             updateStar();
 
-            // Re-run star check after each weather fetch (city may have changed)
-            const origFetch = window._origFetchNeoWeather || fetchNeoWeather;
-            // Expose hook so fetchNeoWeather calls updateStar after each run
-            const _patchedWeather = async function () {
-                await fetchNeoWeather();
-                renderPills();
-                updateStar();
-            };
-            // Attach to interval override — just also call updateStar when planner opens
+            // Re-run star/pill check when planner opens (city may have changed)
             document.getElementById('btn-planner-open')?.addEventListener('click', () => {
                 setTimeout(() => { renderPills(); updateStar(); }, 100);
             });
@@ -2792,30 +2766,33 @@
             });
         });
 
-        /*
-           (EASTER EGG)
-                    .
-                   / \
-                  |   |
-                  |   |
-                 /     \
-                |       |
-                |_______|
-                 /  |  \
-                *   *   *
-           "To the moon and back. Launching focus!"
-        */
 
-        // Real-time Clock Widget Loop
-        setInterval(() => {
+        // Real-time Clock Widget Loop (Optimized via Observer)
+        let plannerClockInterval = null;
+        function updatePlannerClock() {
             const clk = document.getElementById('live-clock');
             const dt = document.getElementById('live-date');
-            if (clk && dt && document.getElementById('planner-overlay').classList.contains('visible')) {
+            if (clk && dt) {
                 const now = new Date();
                 clk.textContent = now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
                 dt.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', year: 'numeric' });
             }
-        }, 1000);
+        }
+        const plannerOverlayNode = document.getElementById('planner-overlay');
+        if (plannerOverlayNode) {
+            new MutationObserver((mutations) => {
+                mutations.forEach(m => {
+                    if (m.attributeName === 'class') {
+                        if (plannerOverlayNode.classList.contains('visible')) {
+                            updatePlannerClock();
+                            if (!plannerClockInterval) plannerClockInterval = setInterval(updatePlannerClock, 1000);
+                        } else {
+                            if (plannerClockInterval) { clearInterval(plannerClockInterval); plannerClockInterval = null; }
+                        }
+                    }
+                });
+            }).observe(plannerOverlayNode, { attributes: true });
+        }
 
         // --- 11. EXTERNAL CALENDAR SYNC (HELIOS) ---
         const syncBtn = document.getElementById('btn-sync');

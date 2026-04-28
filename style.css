@@ -1,16 +1,4 @@
-/*
-  **************************************************************************
-  *                                                                         *
-  *   ██████╗███████╗███████╗    ███████╗████████╗██╗   ██╗██╗     ███████╗ *
-  *  ██╔════╝██╔════╝██╔════╝    ██╔════╝╚══██╔══╝╚██╗ ██╔╝██║     ██╔════╝ *
-  *  ██║     ███████╗███████╗    ███████╗   ██║    ╚████╔╝ ██║     █████╗   *
-  *  ██║     ╚════██║╚════██║    ╚════██║   ██║     ╚██╔╝  ██║     ██╔══╝   *
-  *  ╚██████╗███████║███████║    ███████║   ██║      ██║   ███████╗███████╗ *
-  *   ╚═════╝╚══════╝╚══════╝    ╚══════╝   ╚═╝      ╚═╝   ╚══════╝╚══════╝ *
-  *                                                                         *
-  *                  AESTHETIC POMODORO PRO - STYLESHEET                    *
-  ***************************************************************************
-*/
+/* AESTHETIC POMODORO PRO — STYLESHEET */
 
 /* -------------------------------------------------------------------------- */
 /*  [1] DESIGN TOKENS & VARIABLES                                             */
@@ -241,14 +229,6 @@ body {
     overflow-x: hidden;
 }
 
-.icon-btn-opacity {
-    opacity: 0.7;
-}
-
-.share-icon {
-    margin-left: 10px;
-    font-size: 1.2rem;
-}
 
 .absolute-header {
     position: absolute;
@@ -1109,24 +1089,6 @@ body.long-break-mode .glass-panel {
     transform: translateY(-1px);
 }
 
-.neo-select {
-    background: #e0e5ec;
-    border: none;
-    border-radius: 12px;
-    box-shadow: 4px 4px 8px #d1d9e6, -4px -4px 8px #ffffff;
-    color: #555;
-    font-family: inherit;
-    font-weight: 600;
-    cursor: pointer;
-    outline: none;
-    appearance: none;
-    transition: all 0.2s ease-in-out;
-}
-
-.neo-select:hover,
-.neo-select:focus {
-    box-shadow: inset 4px 4px 8px #d1d9e6, inset -4px -4px 8px #ffffff;
-}
 
 /* -------------------------------------------------------------------------- */
 /*  [12] MAC-INSPIRED DOCK MENU                                              */
@@ -1175,6 +1137,7 @@ body.long-break-mode .glass-panel {
     transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
     transform-origin: bottom center;
     cursor: pointer;
+    will-change: transform;
 }
 
 .squircle {
@@ -1357,15 +1320,6 @@ body.long-break-mode .glass-panel {
 /*  [14] PLANNER WIDGETS (CLOCK, WEATHER, EVENTS)                           */
 /* -------------------------------------------------------------------------- */
 
-/* CLOCK & WEATHER PILLS */
-.neo-weather-pill {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    border-radius: 40px;
-    padding: 20px 30px;
-    gap: 20px;
-}
 
 #live-clock {
     font-size: 1.8rem;
@@ -1779,16 +1733,6 @@ body.long-break-mode .glass-panel {
     box-shadow: inset 2px 2px 5px #d1d9e6, inset -2px -2px 5px #ffffff;
 }
 
-/* (EASTER EGG)
-      (  )   (  )
-       ) (    ) (
-     .-------.
-     |       |]
-     \       /
-      '-----'
-     "Stay caffeinated, stay focused."
-*/
-
 /* -------------------------------------------------------------------------- */
 /*  AUDIO DYNAMIC ISLAND OVERLAY                                              */
 /* -------------------------------------------------------------------------- */
@@ -2113,6 +2057,21 @@ body.long-break-mode .glass-panel {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  [18.5] INTERACTION ANIMATIONS (.bouncing, .drag-over)                     */
+/* -------------------------------------------------------------------------- */
+.bouncing { 
+    animation: dock-bounce 0.4s ease; 
+}
+@keyframes dock-bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(0.85); }
+}
+
+.neo-card.drag-over { 
+    box-shadow: 0 0 0 3px rgba(161, 196, 253, 0.6), 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff; 
+}
+
+/* -------------------------------------------------------------------------- */
 /*  [19] MOBILE OPTIMIZATION & RESPONSIVENESS                                 */
 /* -------------------------------------------------------------------------- */
 @media (max-width: 900px) {
@@ -2138,20 +2097,7 @@ body.long-break-mode .glass-panel {
     .timer-display {
         font-size: 18vw !important; 
     }
-    .neo-timer-ring {
-        width: 250px !important;
-        height: 250px !important;
-    }
-    
-    /* Dynamic Island adjustment */
-    .dynamic-island {
-        max-width: 90vw;
-    }
-    
-    /* Footer & Docks */
-    .btn-dock {
-        gap: 15px !important;
-    }
+
     .neo-circle-btn {
         width: 45px !important;
         height: 45px !important;
