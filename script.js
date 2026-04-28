@@ -1,8 +1,24 @@
 (function () {
     'use strict';
 
-    /* AESTHETIC POMODORO PRO β€” CORE LOGIC */
-
+    /*
+      =============================================================================
+      *                                                                           *
+      *             _  _____   _____  _   __  _____  _____                        *
+      *            | |/  ___| /  __ \| | / / /  ___||_   _|                       *
+      *            | |\ `--.  | /  \/| |/ /  \ `--.   | |                         *
+      *        _   | | `--. \ | |    |    \   `--. \  | |                         *
+      *       | |__| |/\__/ / | \__/\| |\  \ /\__/ /  | |                         *
+      *        \____/ \____/   \____/\_| \_/ \____/   \_/                         *
+      *                                                                           *
+      *                     AESTHETIC POMODORO PRO                                *
+      *                     Application Core Logic                                *
+      =============================================================================
+      
+      @file script.js
+      @description Core application logic, state management, timer orchestration, 
+                   audio engine, and DOM manipulation routines.
+    */
 
     // --------------------------------------------------------------------------
     //  [1] GLOBAL STATE & CONFIGURATION
@@ -38,6 +54,16 @@
     // --------------------------------------------------------------------------
     //  NATIVE WEB AUDIO NEURAL ENGINE
     // --------------------------------------------------------------------------
+    /**
+     * ==========================================
+     *     ♫  AUDIO ENGINE  ♫
+     *        [~~~~|~~~~]
+     *         \___/___/
+     * ==========================================
+     * Neural Audio Engine Class
+     * @description Handles Web Audio API contexts, binaural beats generation, 
+     *              nature soundscapes, and crossfading logic for focus enhancement.
+     */
     class NeuralAudioEngine {
         constructor(profile = 'focus') {
             this.profile = profile;
@@ -660,6 +686,17 @@
     /**
      * Starts the countdown and increments subject study time.
      */
+    /**
+     * ==========================================
+     *       ⏳ TIMER LOGIC
+     *         (  (  )
+     *          \    /
+     *           \__/
+     * ==========================================
+     * @function startTimer
+     * @description Initiates the Pomodoro core loop. Handles time decrements, 
+     *              subject tracking accumulations, and triggers audio events.
+     */
     function startTimer() {
         // Phase 1 Fix: Force-blur the editable timer to commit any manual changes
         if (document.activeElement === UI.timeDisplay) {
@@ -1083,6 +1120,16 @@
     /**
      * Renders the miniature sidebar calendar.
      */
+    /**
+     * ==========================================
+     *       📅 CALENDAR RENDERER
+     *         [==|==|==]
+     *         [  |  |  ]
+     * ==========================================
+     * @function renderCalendar
+     * @description Rebuilds the DOM for the dynamic calendar grid. Evaluates holidays,
+     *              name days (including Easter offsets for St. George), and user events.
+     */
     function renderCalendar() {
         const year = State.calendarDate.getFullYear();
         const month = State.calendarDate.getMonth();
@@ -1495,6 +1542,18 @@
 
     /**
      * Fetches live weather data for Athens using Open-Meteo (API-key free).
+     */
+    /**
+     * ==========================================
+     *       ☁️ WEATHER API
+     *          _.-._
+     *         /  _  \
+     *        /_/   \_\
+     * ==========================================
+     * @async
+     * @function fetchNeoWeather
+     * @description Retrieves geolocation based coordinates from the active city
+     *              and fetches real-time meteorological data via Open-Meteo.
      */
     async function fetchNeoWeather() {
         const tempEl = document.getElementById('weather-temp-now');
@@ -2841,6 +2900,17 @@
         const elMsDifficulty = document.getElementById('ms-difficulty');
         const elMsBtnAction = document.getElementById('ms-btn-action');
 
+        /**
+         * ==========================================
+         *       💣 MINESWEEPER
+         *         _.-._ 
+         *        | '*' |
+         *         '-.-'
+         * ==========================================
+         * @function initMinesweeper
+         * @description Initializes the game grid, resets game state, and handles 
+         *              difficulty scaling for the built-in Minesweeper overlay.
+         */
         function initMinesweeper() {
             if (!elMsDifficulty || !elMsGrid) return;
             const diff = msLevels[elMsDifficulty.value];

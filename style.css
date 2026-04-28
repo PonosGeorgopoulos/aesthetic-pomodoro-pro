@@ -1,4 +1,21 @@
-/* AESTHETIC POMODORO PRO — STYLESHEET */
+/*
+  =============================================================================
+  *                                                                           *
+  *        _____ ______   ______      _____ ______   ______                   *
+  *       / ____|  ____| |  ____|    / ____|  ____| |  ____|                  *
+  *      | (___ | |__    | |__      | (___ | |__    | |__                     *
+  *       \___ \|  __|   |  __|      \___ \|  __|   |  __|                    *
+  *       ____) | |____  | |____     ____) | |____  | |____                   *
+  *      |_____/|______| |______|   |_____/|______| |______|                  *
+  *                                                                           *
+  *                     AESTHETIC POMODORO PRO                                *
+  *                     Cascading Style Sheets                                *
+  =============================================================================
+  
+  @file style.css
+  @description Global stylesheet defining the Neumorphic design system, layout 
+               structures, responsive breakpoints, and CSS variables (tokens).
+*/
 
 /* -------------------------------------------------------------------------- */
 /*  [1] DESIGN TOKENS & VARIABLES                                             */
