@@ -1629,6 +1629,20 @@
                 dayDiv.classList.add('today-neo');
             }
 
+            // Render Study Dot if data exists
+            let totalStudySecs = 0;
+            if (dailySubjectData[fullDateStr]) {
+                // Calculate total by summing only main subjects to avoid double counting subcategories
+                Object.keys(dailySubjectData[fullDateStr]).forEach(k => {
+                    if (!k.includes('::')) totalStudySecs += dailySubjectData[fullDateStr][k];
+                });
+            }
+            if (totalStudySecs > 0) {
+                const studyDot = document.createElement('div');
+                studyDot.className = 'study-dot';
+                dayDiv.appendChild(studyDot);
+            }
+
             if (tooltips.length > 0) {
                 const indContainer = document.createElement('div');
                 indContainer.className = 'event-dot-container';
@@ -2193,6 +2207,67 @@
                 li.textContent = 'No events';
                 listEl.appendChild(li);
             }
+        }
+
+        // --- NEW: POPULATE STUDY LOG ---
+        const studyLogEl = document.getElementById('modal-study-log');
+        if (studyLogEl) {
+            studyLogEl.innerHTML = '';
+            studyLogEl.style.display = 'block';
+            
+            let totalStudySecs = 0;
+            let logHTML = '';
+            
+            if (dailySubjectData[dateStr]) {
+                const subjects = dailySubjectData[dateStr];
+                let itemsHTML = '';
+                
+                // Sort by time spent (descending)
+                const sortedKeys = Object.keys(subjects).sort((a, b) => subjects[b] - subjects[a]);
+                
+                for (let k of sortedKeys) {
+                    if (subjects[k] > 0) {
+                        if (!k.includes('::')) totalStudySecs += subjects[k]; // Only sum main subjects
+                        
+                        let displayName = k;
+                        if (k.includes('::')) {
+                            displayName = k.split('::').join(' <span style="opacity:0.4; font-size:0.8em; margin:0 4px;">▶</span> ');
+                        }
+                        
+                        // Add slight indent for subcategories to make it visually clear
+                        const paddingLeft = k.includes('::') ? '20px' : '10px';
+                        const bgColor = k.includes('::') ? 'transparent' : 'var(--bg-color)';
+                        const shadow = k.includes('::') ? 'none' : 'inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light)';
+                        const borderLeft = k.includes('::') ? '2px solid var(--primary-color)' : 'none';
+                        
+                        itemsHTML += `
+                            <div class="study-log-item" style="padding-left: ${paddingLeft}; background: ${bgColor}; box-shadow: ${shadow}; border-left: ${borderLeft};">
+                                <span class="subject-name">${displayName}</span>
+                                <span class="subject-time">${formatMinutesAndSeconds(subjects[k])}</span>
+                            </div>
+                        `;
+                    }
+                }
+                
+                if (totalStudySecs > 0) {
+                    logHTML = `
+                        <div class="study-log-title">
+                            📚 Study Log
+                            <span class="study-log-total">Total: ${formatMinutesAndSeconds(totalStudySecs)}</span>
+                        </div>
+                        ${itemsHTML}
+                    `;
+                }
+            }
+            
+            if (totalStudySecs === 0) {
+                logHTML = `
+                    <div class="study-log-title">📚 Study Log</div>
+                    <div class="study-log-empty">No study sessions recorded</div>
+                `;
+            }
+            
+            studyLogEl.innerHTML = logHTML;
         }
 
         // Daily Analytics Chart
