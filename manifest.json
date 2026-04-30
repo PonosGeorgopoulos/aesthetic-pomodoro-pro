@@ -1,7 +1,7 @@
 {
-    "name": "Aesthetic Pomodoro Pro",
+    "name": "Aesthetic Pomodoro Timer",
     "short_name": "Pomodoro",
-    "description": "An elegant, Neumorphic Pomodoro timer built for ultimate productivity.",
+    "description": "An elegant, Neumorphic Pomodoro timer built for ultimate productivity. Track subjects and improve studying.",
     "start_url": "index.html",
     "display": "standalone",
     "background_color": "#ecf0f3",
