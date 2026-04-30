@@ -377,6 +377,7 @@
         alarmDisplay: document.getElementById('alarm-display'),
         alarmMenu: document.getElementById('alarm-menu'),
         chartCanvas: document.getElementById('myChart'),
+        chartShowSubcategories: document.getElementById('chart-show-subcategories'),
         dynamicIsland: document.getElementById('audio-dynamic-island'),
         islandToggleBtn: document.getElementById('btn-island-toggle'),
         islandCloseBtn: document.getElementById('btn-island-close')
@@ -749,12 +750,25 @@
 
             // Increment subject data during focus sessions
             if (State.currentMode === 'focus' && State.activeSubject && elapsed > 0) {
-                subjectData[State.activeSubject] = (subjectData[State.activeSubject] || 0) + elapsed;
+                let mainSub = State.activeSubject;
+                let isSubcat = false;
+                if (State.activeSubject.includes('::')) {
+                    mainSub = State.activeSubject.split('::')[0];
+                    isSubcat = true;
+                }
+
+                subjectData[mainSub] = (subjectData[mainSub] || 0) + elapsed;
+                if (isSubcat) {
+                    subjectData[State.activeSubject] = (subjectData[State.activeSubject] || 0) + elapsed;
+                }
 
                 const now = new Date();
                 const todayStr = toDateStr(now);
                 if (!dailySubjectData[todayStr]) dailySubjectData[todayStr] = {};
-                dailySubjectData[todayStr][State.activeSubject] = (dailySubjectData[todayStr][State.activeSubject] || 0) + elapsed;
+                dailySubjectData[todayStr][mainSub] = (dailySubjectData[todayStr][mainSub] || 0) + elapsed;
+                if (isSubcat) {
+                    dailySubjectData[todayStr][State.activeSubject] = (dailySubjectData[todayStr][State.activeSubject] || 0) + elapsed;
+                }
 
                 State.focusSyncAcc = (State.focusSyncAcc || 0) + elapsed;
                 if (State.focusSyncAcc >= 5) {
@@ -893,27 +907,107 @@
     function renderSubjectList() {
         UI.subjectList.innerHTML = '';
         const currentData = getFilteredSubjectData().subjects;
-        const sortedSubjects = Object.keys(subjectData).sort((a, b) => a.localeCompare(b));
+        const allKeys = Object.keys(subjectData);
+        
+        // Group by main subject
+        const grouped = {};
+        for (let key of allKeys) {
+            if (key.includes('::')) {
+                const [main, sub] = key.split('::');
+                if (!grouped[main]) grouped[main] = { time: 0, subcategories: [] };
+                grouped[main].subcategories.push({ name: sub, key: key });
+            } else {
+                if (!grouped[key]) grouped[key] = { time: 0, subcategories: [] };
+                grouped[key].time = currentData[key] || 0;
+            }
+        }
 
-        for (let subj of sortedSubjects) {
+        const sortedMains = Object.keys(grouped).sort((a, b) => a.localeCompare(b));
+
+        for (let main of sortedMains) {
+            const mainGroup = grouped[main];
             const div = document.createElement('div');
             div.className = 'subject-card';
-            if (subj === State.activeSubject) div.classList.add('active');
+            if (main === State.activeSubject) div.classList.add('active');
 
             div.addEventListener('click', () => {
-                State.activeSubject = subj;
+                State.activeSubject = main;
                 renderSubjectList();
             });
 
+            // Accordion toggle if has subcategories
+            const accordionBtn = document.createElement('button');
+            accordionBtn.className = 'subject-accordion-btn';
+            accordionBtn.innerHTML = '▶';
+            
             const titleSpan = document.createElement('span');
-            titleSpan.textContent = subj;
+            titleSpan.textContent = main;
             titleSpan.style.flexGrow = '1';
-            titleSpan.style.fontWeight = (subj === State.activeSubject) ? '600' : '400';
+            titleSpan.style.fontWeight = (main === State.activeSubject) ? '600' : '400';
             titleSpan.style.fontSize = '1.1rem';
 
             const timeSpan = document.createElement('span');
             timeSpan.className = 'subject-time';
-            timeSpan.textContent = formatMinutesAndSeconds(currentData[subj] || 0);
+            timeSpan.textContent = formatMinutesAndSeconds(mainGroup.time);
+
+            // Subcategories container
+            const subContainer = document.createElement('div');
+            subContainer.className = 'subcategories-container';
+            
+            // Inline add input
+            const inputContainer = document.createElement('div');
+            inputContainer.style.display = 'none';
+            const inlineInput = document.createElement('input');
+            inlineInput.className = 'inline-add-input';
+            inlineInput.placeholder = 'New subcategory...';
+            inlineInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && inlineInput.value.trim() !== '') {
+                    const subName = inlineInput.value.trim();
+                    const sanitizedSubName = subName.replace(/::/g, '-');
+                    const newKey = `${main}::${sanitizedSubName}`;
+                    if (!subjectData[newKey]) {
+                        subjectData[newKey] = 0;
+                        saveSubjects();
+                        // Open accordion automatically
+                        subContainer.classList.add('expanded');
+                        accordionBtn.classList.add('expanded');
+                        renderSubjectList();
+                        renderChart();
+                    }
+                } else if (e.key === 'Escape') {
+                    inputContainer.style.display = 'none';
+                    if (mainGroup.subcategories.length === 0) {
+                        subContainer.classList.remove('expanded');
+                        accordionBtn.classList.remove('expanded');
+                        accordionBtn.style.visibility = 'hidden';
+                    }
+                }
+            });
+            inputContainer.appendChild(inlineInput);
+            subContainer.appendChild(inputContainer);
+
+            const addBtn = document.createElement('button');
+            addBtn.className = 'subject-add-btn';
+            addBtn.innerHTML = '+';
+            addBtn.title = "Add Subcategory";
+            addBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Toggle inline input
+                if (inputContainer.style.display === 'block') {
+                    inputContainer.style.display = 'none';
+                    if (mainGroup.subcategories.length === 0) {
+                        subContainer.classList.remove('expanded');
+                        accordionBtn.classList.remove('expanded');
+                        accordionBtn.style.visibility = 'hidden';
+                    }
+                } else {
+                    inputContainer.style.display = 'block';
+                    subContainer.classList.add('expanded');
+                    accordionBtn.classList.add('expanded');
+                    accordionBtn.style.visibility = 'visible';
+                    inlineInput.focus();
+                }
+            });
 
             const delBtn = document.createElement('button');
             delBtn.className = 'subject-delete';
@@ -922,17 +1016,97 @@
 
             delBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                delete subjectData[subj];
-                if (State.activeSubject === subj) State.activeSubject = null;
+                // Delete main and all subcategories
+                for (let k of Object.keys(subjectData)) {
+                    if (k === main || k.startsWith(main + '::')) {
+                        delete subjectData[k];
+                    }
+                }
+                if (State.activeSubject && (State.activeSubject === main || State.activeSubject.startsWith(main + '::'))) {
+                    State.activeSubject = null;
+                }
                 saveSubjects();
                 renderSubjectList();
                 renderChart();
             });
 
-            div.appendChild(titleSpan);
-            div.appendChild(timeSpan);
-            div.appendChild(delBtn);
+            const topRow = document.createElement('div');
+            topRow.style.display = 'flex';
+            topRow.style.alignItems = 'center';
+            topRow.style.width = '100%';
+            
+            topRow.appendChild(accordionBtn);
+            topRow.appendChild(titleSpan);
+            topRow.appendChild(timeSpan);
+            if (State.trackerRange === 'all-time') topRow.appendChild(addBtn);
+            topRow.appendChild(delBtn);
+
+            div.appendChild(topRow);
+
+            // Render subcategories
+            mainGroup.subcategories.sort((a,b) => a.name.localeCompare(b.name)).forEach(sub => {
+                const subDiv = document.createElement('div');
+                subDiv.className = 'subcategory-card';
+                if (sub.key === State.activeSubject) subDiv.classList.add('active');
+                
+                subDiv.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    State.activeSubject = sub.key;
+                    renderSubjectList();
+                });
+
+                const subTitle = document.createElement('span');
+                subTitle.textContent = sub.name;
+                subTitle.style.flexGrow = '1';
+
+                const subTime = document.createElement('span');
+                subTime.className = 'subject-time';
+                subTime.style.fontSize = '0.85rem';
+                subTime.textContent = formatMinutesAndSeconds(currentData[sub.key] || 0);
+
+                const subDel = document.createElement('button');
+                subDel.className = 'subject-delete';
+                subDel.innerHTML = "&times;";
+                subDel.style.width = '28px';
+                subDel.style.height = '28px';
+                subDel.style.fontSize = '1rem';
+                if (State.trackerRange !== 'all-time') subDel.style.display = 'none';
+
+                subDel.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    delete subjectData[sub.key];
+                    if (State.activeSubject === sub.key) State.activeSubject = null;
+                    saveSubjects();
+                    renderSubjectList();
+                    renderChart();
+                });
+
+                subDiv.appendChild(subTitle);
+                subDiv.appendChild(subTime);
+                subDiv.appendChild(subDel);
+                subContainer.appendChild(subDiv);
+            });
+
+            // Accordion logic
+            if (mainGroup.subcategories.length > 0 || inputContainer.style.display === 'block') {
+                accordionBtn.style.visibility = 'visible';
+                accordionBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    subContainer.classList.toggle('expanded');
+                    accordionBtn.classList.toggle('expanded');
+                });
+                
+                // Keep expanded if active subject is inside
+                if (State.activeSubject && State.activeSubject.startsWith(main + '::')) {
+                    subContainer.classList.add('expanded');
+                    accordionBtn.classList.add('expanded');
+                }
+            } else {
+                accordionBtn.style.visibility = 'hidden';
+            }
+
             UI.subjectList.appendChild(div);
+            UI.subjectList.appendChild(subContainer);
         }
     }
 
@@ -946,13 +1120,71 @@
         const curSubjectData = filtered.subjects;
         const curBreaks = filtered.breaks;
 
-        const labels = Object.keys(curSubjectData).filter(sub => curSubjectData[sub] > 0 || State.trackerRange === 'all-time');
-        const dataVals = labels.map(sub => parseFloat((curSubjectData[sub] / 60).toFixed(2)));
+        let labels = [];
+        let dataVals = [];
+        let chartColors = [];
+        
+        const showSub = UI.chartShowSubcategories && UI.chartShowSubcategories.checked;
+        const allKeys = Object.keys(curSubjectData);
+        
+        const subcatSums = {};
+        allKeys.forEach(k => {
+            if (k.includes('::')) {
+                const main = k.split('::')[0];
+                subcatSums[main] = (subcatSums[main] || 0) + (curSubjectData[k] || 0);
+            }
+        });
+
+        const hasSubcategories = {};
+        allKeys.forEach(k => {
+            if (k.includes('::')) hasSubcategories[k.split('::')[0]] = true;
+        });
+        
+        const mainSubjectsList = Object.keys(subjectData).filter(k => !k.includes('::'));
+
+        allKeys.forEach((key) => {
+            const time = curSubjectData[key] || 0;
+            if (time === 0 && State.trackerRange !== 'all-time') return;
+            
+            const isSub = key.includes('::');
+            const mainName = isSub ? key.split('::')[0] : key;
+            
+            let colorIdx = mainSubjectsList.indexOf(mainName);
+            if (colorIdx < 0) colorIdx = 0;
+            const color = aestheticColors[colorIdx % aestheticColors.length];
+
+            if (showSub) {
+                if (isSub) {
+                    labels.push(`${mainName}: ${key.split('::')[1]}`);
+                    dataVals.push(parseFloat((time / 60).toFixed(2)));
+                    chartColors.push(color);
+                } else {
+                    const subSum = subcatSums[key] || 0;
+                    const generalTime = Math.max(0, time - subSum);
+                    
+                    if (hasSubcategories[key]) {
+                        if (generalTime > 0 || State.trackerRange === 'all-time') {
+                            labels.push(`${key} (General)`);
+                            dataVals.push(parseFloat((generalTime / 60).toFixed(2)));
+                            chartColors.push(color);
+                        }
+                    } else {
+                        labels.push(key);
+                        dataVals.push(parseFloat((time / 60).toFixed(2)));
+                        chartColors.push(color);
+                    }
+                }
+            } else {
+                if (!isSub) {
+                    labels.push(key);
+                    dataVals.push(parseFloat((time / 60).toFixed(2)));
+                    chartColors.push(color);
+                }
+            }
+        });
 
         const chartLabels = [...labels, 'Total Breaks ☕'];
         const chartData = [...dataVals, parseFloat((curBreaks / 60).toFixed(2))];
-
-        const chartColors = labels.map((_, i) => aestheticColors[Object.keys(subjectData).indexOf(labels[i]) % aestheticColors.length]);
         chartColors.push('rgba(215, 215, 215, 0.9)');
 
         if (State.pieChart && State.pieChart.config.type === State.mainChartType) {
@@ -2244,14 +2476,22 @@
         UI.subjectInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && UI.subjectInput.value.trim() !== "") {
                 const val = UI.subjectInput.value.trim();
-                if (!subjectData[val]) subjectData[val] = 0;
-                State.activeSubject = val; // Set as active upon creation
+                // Check if they accidentally typed '::' - avoid creating weird edge cases, sanitize
+                const sanitizedVal = val.replace(/::/g, '-');
+                if (!subjectData[sanitizedVal]) subjectData[sanitizedVal] = 0;
+                State.activeSubject = sanitizedVal; // Set as active upon creation
                 UI.subjectInput.value = "";
                 saveSubjects();
                 renderSubjectList();
                 renderChart();
             }
         });
+
+        if (UI.chartShowSubcategories) {
+            UI.chartShowSubcategories.addEventListener('change', () => {
+                renderChart();
+            });
+        }
 
         // Tracker Range Dropdown (Glassmorphic)
         const trDisp = document.getElementById('tracker-time-display');

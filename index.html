@@ -221,6 +221,11 @@
                     <button class="chart-toggle active" data-target="main" data-type="pie">Pie 🥧</button>
                     <button class="chart-toggle" data-target="main" data-type="bar">Column 📊</button>
                 </div>
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 10px; margin-top: -5px;">
+                    <label style="font-size: 0.85rem; color: #555; display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 500;">
+                        <input type="checkbox" id="chart-show-subcategories" style="accent-color: #3b82f6; width: 14px; height: 14px; cursor: pointer;"> Show Subcategories
+                    </label>
+                </div>
 
                 <div class="chart-wrapper" id="chart-container">
                     <canvas id="myChart"></canvas>

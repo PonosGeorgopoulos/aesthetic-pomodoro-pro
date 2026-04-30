@@ -1069,6 +1069,106 @@ body.long-break-mode .glass-panel {
     color: #ff2d55;
 }
 
+/* SUBCATEGORY STYLES */
+.subcategory-card {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 8px 15px 8px 30px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    font-size: 0.95rem;
+}
+
+.subcategory-card:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.subcategory-card.active {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #a1c4fd;
+    font-weight: 600;
+}
+
+.subject-add-btn {
+    background: rgba(161, 196, 253, 0.2);
+    border: none;
+    color: #79a6f6;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-left: 5px;
+    transition: all 0.2s ease;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.subject-add-btn:hover {
+    color: #fff;
+    background: #79a6f6;
+    transform: scale(1.1);
+}
+
+.subject-accordion-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 0.7rem;
+    padding: 5px;
+    margin-right: 5px;
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.subject-accordion-btn.expanded {
+    transform: rotate(90deg);
+}
+
+.subcategories-container {
+    display: none;
+    flex-direction: column;
+    margin-top: -5px;
+    margin-bottom: 10px;
+}
+
+.subcategories-container.expanded {
+    display: flex;
+    animation: fadeInSlide 0.3s ease;
+}
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.inline-add-input {
+    width: calc(100% - 15px);
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px dashed rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    color: #333;
+    outline: none;
+    margin-bottom: 8px;
+    margin-left: 15px;
+    transition: all 0.2s;
+}
+.inline-add-input:focus {
+    background: rgba(255, 255, 255, 0.7);
+    border-style: solid;
+}
+
 .chart-wrapper {
     position: relative;
     height: 220px;
